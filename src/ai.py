@@ -1,18 +1,21 @@
 import math
+from queue import Queue
+
+from board import Board
 
 
-def utility(victory, is_me):
+def utility(board: Board, victory: bool, player: int, is_me: bool):
     if victory:
-        return -1 if is_me else 1
-    return 0
+        return -1000 if is_me else 1000
+    return board.eval(player)
 
 
-def min_max_value(board, initial_turn, turn, deepness, alpha, beta, is_max):
+def min_max_value(board: Board, initial_turn: int, turn: int, deepness: int, alpha: float, beta: float, is_max: bool):
     # Terminal state 🛑
     moves = board.get_possible_moves()
     victory = board.check_victory()
     if victory or len(moves) == 0 or turn - initial_turn >= deepness:
-        return utility(victory, turn % 2 == initial_turn % 2), None
+        return utility(board, victory, 2 - (turn % 2), turn % 2 == initial_turn % 2), None
 
     # Normal iteration 🔄
     v = -math.inf if is_max else math.inf
@@ -36,6 +39,6 @@ def min_max_value(board, initial_turn, turn, deepness, alpha, beta, is_max):
     return v, current_move
 
 
-def alpha_beta_decision(board, turn, ai_level, queue, max_player):
+def alpha_beta_decision(board: Board, turn: int, ai_level: int, queue: Queue, max_player):
     v, move = min_max_value(board, turn, turn, ai_level, -math.inf, math.inf, True)
     queue.put(move)
